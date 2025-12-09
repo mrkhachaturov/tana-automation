@@ -76,7 +76,14 @@ WEBHOOK_URL=https://hooks.slack.com/services/XXX
 
 **Docker (pre-built image):**
 ```bash
+# Linux
 docker run -d --init --ipc=host \
+  -v ./chrome-profile:/app/chrome-profile \
+  --env-file .env \
+  ghcr.io/mrkhachaturov/tana-automation:latest
+
+# macOS (Apple Silicon)
+docker run -d --init --ipc=host --platform linux/amd64 \
   -v ./chrome-profile:/app/chrome-profile \
   --env-file .env \
   ghcr.io/mrkhachaturov/tana-automation:latest
@@ -132,6 +139,7 @@ BUTTON_SELECTOR=#submit-btn
      --name tana-watcher \
      ghcr.io/mrkhachaturov/tana-automation:latest
    ```
+   > **macOS (Apple Silicon):** Add `--platform linux/amd64` flag
 
 See [full deployment guide](docs/KANBAN-WATCHER.md#docker-deployment).
 
