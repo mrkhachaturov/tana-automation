@@ -92,6 +92,8 @@ docker-compose -f docker-compose.watcher.yml up -d
 
 *For Kanban mode. Other modes may use different config.
 
+> **Don't know where to get column IDs?** See [How to Extract Config](docs/EXTRACT-CONFIG.md) - copy HTML from DevTools, paste to AI, get your env vars.
+
 ## Button Configuration
 
 You can target any button:
@@ -213,6 +215,7 @@ BUTTON_TEXT=SYNC
 
 ## Documentation
 
+- [📖 How to Extract Config from Tana](docs/EXTRACT-CONFIG.md) - Get column IDs and selectors using AI
 - [Kanban Watcher Example](docs/KANBAN-WATCHER.md)
 - [Playwright Docs](https://playwright.dev/docs)
 
