@@ -1,7 +1,7 @@
 {
   "name": "tana-automation",
   "version": "1.0.0",
-  "description": "Automatically click SYNC on Tana Kanban cards when status changes",
+  "description": "Automate button clicks on Tana when content changes - watch any page, detect changes, trigger actions",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mrkhachaturov/tana-automation.git"
