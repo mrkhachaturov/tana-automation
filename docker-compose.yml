@@ -1,0 +1,20 @@
+# Docker Compose for Tana Automation
+# Per Playwright best practices: https://playwright.dev/docs/docker
+
+services:
+  tana-sync:
+    build: .
+    # Recommended flags per Playwright docs
+    init: true  # Avoid zombie processes
+    ipc: host   # Prevent Chromium OOM crashes
+    volumes:
+      # Mount Chrome profile (authenticate on host first)
+      - ./chrome-profile:/app/chrome-profile
+      # Mount artifacts for failure screenshots
+      - ./artifacts:/app/artifacts
+    environment:
+      - HEADLESS=1
+      - TANA_LINK=${TANA_LINK:-https://app.tana.inc}
+      - TANA_COLUMN=${TANA_COLUMN:-In progress}
+      - TANA_COLUMN_TESTID=${TANA_COLUMN_TESTID:-column-YnoDw59tQHaz}
+

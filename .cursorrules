@@ -1,0 +1,98 @@
+# Tana Playwright Automation Project Rules
+
+## Project Overview
+This is a Playwright automation project for Tana (app.tana.inc) that syncs cards in Kanban columns. It uses TypeScript, persistent Chrome profiles for OAuth, and follows Playwright best practices.
+
+## Tech Stack
+- TypeScript with strict mode
+- Playwright (library + test runner)
+- Node.js with ES modules ("type": "module")
+- dotenv for environment variables
+
+## Tana Backend
+- Tana uses **Firebase** (Firestore/Realtime DB)
+- API endpoints: `firestore.googleapis.com`, `firebaseio.com`
+- Real-time sync via WebSockets
+- SYNC button triggers Firebase writes
+
+## Key Patterns
+
+### Authentication
+- Uses persistent Chrome profile for Microsoft/Google OAuth
+- Profile stored in `./chrome-profile` (gitignored)
+- Auth state backup in `./playwright/.auth/` (gitignored)
+- Never store passwords - OAuth only
+
+### Locators (per Playwright best practices)
+- Prefer `data-testid` attributes: `page.getByTestId("column-XXX")`
+- Use semantic locators: `page.getByRole()`, `page.getByText()`
+- Avoid CSS classes when possible (they change)
+- Chain and filter locators for precision
+
+### Code Style
+- Always `await` Playwright calls (ESLint enforces no-floating-promises)
+- Use `page.waitForTimeout()` sparingly, prefer `waitForSelector` or `waitFor`
+- Handle errors with try/catch and save screenshots on failure
+- Log actions for debugging: `console.log("Clicking...")`
+
+### File Structure
+```
+src/
+  main.ts       - CLI entry point
+  config.ts     - Configuration & arg parsing  
+  tana.ts       - Tana-specific automation helpers
+tests/
+  *.spec.ts     - Playwright Test files
+  auth.setup.ts - OAuth authentication setup
+```
+
+### Running Commands
+- `npm run dev -- --link "..." --column "..."` - Headed debugging
+- `npm run run:headless -- ...` - Headless production
+- `npm run check` - TypeScript type check
+- `npm run lint` - ESLint
+- `npm test` - Playwright tests
+- `npx playwright test --ui` - Playwright UI mode
+- `npx playwright codegen <url>` - Record interactions
+
+### Docker
+- Base: `mcr.microsoft.com/playwright:v1.57.0-noble`
+- Always use `--init --ipc=host` flags
+- Mount `chrome-profile` volume for auth
+
+## When Modifying Code
+
+### Adding New Automation
+1. Use `npx playwright codegen` to record and get locators
+2. Add helpers to `src/tana.ts`
+3. Update CLI args in `src/config.ts` if needed
+4. Add Playwright Test in `tests/` for VS Code debugging
+
+### Updating Locators
+1. Prefer `data-testid` over CSS classes
+2. Use `page.getByRole()` for semantic elements
+3. Test with `npx playwright test --headed` to verify
+
+### Error Handling
+- Always capture screenshot on failure: `captureScreenshot(page, "failure")`
+- Screenshots saved to `./artifacts/`
+- Log meaningful error messages
+
+## Don't
+- Don't store OAuth credentials in code or .env
+- Don't use `networkidle` wait (Tana is SPA, never settles)
+- Don't hardcode URLs - use CLI args or env vars
+- Don't skip `await` on Playwright calls
+- Don't use Alpine Linux for Docker (glibc required)
+
+## Service Workers
+- Tana may use service workers for caching
+- Default: `serviceWorkers: "allow"` in playwright.config.ts
+- If caching issues: change to `"block"`
+- Docs: https://playwright.dev/docs/service-workers
+
+## References
+- Playwright Auth: https://playwright.dev/docs/auth
+- Playwright Docker: https://playwright.dev/docs/docker
+- Playwright Best Practices: https://playwright.dev/docs/best-practices
+

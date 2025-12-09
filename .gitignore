@@ -1,0 +1,21 @@
+node_modules
+artifacts
+.env
+*.log
+package-lock.json
+
+# Auth & profiles (SENSITIVE - never commit)
+playwright/.auth
+chrome-profile/
+
+# Test results
+test-results/
+playwright-report/
+
+# IDE
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

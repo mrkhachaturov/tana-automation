@@ -1,0 +1,98 @@
+# Docker Compose for Kanban Watcher
+# 
+# FULLY CONFIGURABLE - Works with any Tana board
+#
+# Usage:
+#   1. Copy .env.example to .env and configure
+#   2. Login on host: npx playwright open --channel=chrome --user-data-dir=./chrome-profile "$TANA_KANBAN_URL"
+#   3. Start: docker-compose -f docker-compose.watcher.yml up -d
+#   4. Logs: docker-compose -f docker-compose.watcher.yml logs -f
+#   5. Stop: docker-compose -f docker-compose.watcher.yml down
+
+services:
+  kanban-watcher:
+    build: .
+    platform: linux/amd64
+    container_name: tana-kanban-watcher
+    
+    # Required for Playwright/Chromium
+    init: true
+    ipc: host
+    
+    # Mount chrome-profile from host (for re-login without rebuilding)
+    volumes:
+      - ./chrome-profile:/app/chrome-profile
+      - ./artifacts:/app/artifacts
+    
+    environment:
+      # ===========================================
+      # REQUIRED SETTINGS
+      # ===========================================
+      
+      # Your Tana Kanban board URL
+      - TANA_KANBAN_URL=${TANA_KANBAN_URL}
+      
+      # Columns to watch
+      # Option 1: Single config string (recommended)
+      # Format: "ColumnName:testid,ColumnName2:testid2"
+      # Example: "Backlog:column-ABC123,In Progress:column-XYZ789,Done:column-DEF456"
+      - COLUMNS_CONFIG=${COLUMNS_CONFIG:-}
+      
+      # Option 2: Individual column variables
+      - COLUMN_BACKLOG=${COLUMN_BACKLOG:-}
+      - COLUMN_IN_PROGRESS=${COLUMN_IN_PROGRESS:-}
+      - COLUMN_DONE=${COLUMN_DONE:-}
+      - COLUMN_TODO=${COLUMN_TODO:-}
+      - COLUMN_BLOCKED=${COLUMN_BLOCKED:-}
+      - COLUMN_REVIEW=${COLUMN_REVIEW:-}
+      
+      # ===========================================
+      # BUTTON CONFIGURATION
+      # ===========================================
+      
+      # Button text to click (default: "SYNC")
+      - BUTTON_TEXT=${BUTTON_TEXT:-SYNC}
+      
+      # OR use CSS selector for the button (overrides BUTTON_TEXT)
+      # Examples:
+      #   [data-testid="sync-button"]
+      #   button.sync-btn
+      #   #sync-button
+      - BUTTON_SELECTOR=${BUTTON_SELECTOR:-}
+      
+      # ===========================================
+      # OPTIONAL SETTINGS
+      # ===========================================
+      
+      # Polling interval in milliseconds (default: 2000 = 2 seconds)
+      - POLL_INTERVAL=${POLL_INTERVAL:-2000}
+      
+      # Webhook URL for notifications (Slack, Discord, etc.)
+      # Slack: https://hooks.slack.com/services/XXX/YYY/ZZZ
+      # Discord: https://discord.com/api/webhooks/XXX/YYY
+      - WEBHOOK_URL=${WEBHOOK_URL:-}
+      
+      # ===========================================
+      # SYSTEM SETTINGS (usually don't change)
+      # ===========================================
+      - HEADLESS=1
+      - NODE_ENV=production
+      # Browser channel - must match the profile you created
+      # chrome = Google Chrome (default, required for OAuth profiles)
+      - BROWSER_CHANNEL=${BROWSER_CHANNEL:-chrome}
+    
+    # Run the watcher (with profile unlock)
+    command: >
+      sh -c "rm -f /app/chrome-profile/SingletonLock /app/chrome-profile/SingletonCookie /app/chrome-profile/SingletonSocket 2>/dev/null || true;
+      npx playwright test tests/kanban-watcher.spec.ts --timeout=0 --grep 'watch ALL columns'"
+    
+    # Auto-restart on failure
+    restart: unless-stopped
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
