@@ -74,7 +74,15 @@ WEBHOOK_URL=https://hooks.slack.com/services/XXX
 ./scripts/stop-watcher.sh    # Stop
 ```
 
-**Docker:**
+**Docker (pre-built image):**
+```bash
+docker run -d --init --ipc=host \
+  -v ./chrome-profile:/app/chrome-profile \
+  --env-file .env \
+  ghcr.io/mrkhachaturov/tana-automation:latest
+```
+
+**Docker (build locally):**
 ```bash
 docker-compose -f docker-compose.watcher.yml up -d
 ```
@@ -112,9 +120,18 @@ BUTTON_SELECTOR=#submit-btn
 ## Deploying to Server
 
 1. **Login locally:** `npm run login`
-2. **Copy profile to server:** `scp -r chrome-profile/ user@server:/path/`
-3. **Copy `.env` to server**
-4. **Run:** `docker-compose -f docker-compose.watcher.yml up -d`
+2. **Copy to server:**
+   ```bash
+   scp -r chrome-profile/ .env user@server:/path/to/tana-automation/
+   ```
+3. **Run on server:**
+   ```bash
+   docker run -d --init --ipc=host --restart=unless-stopped \
+     -v /path/to/tana-automation/chrome-profile:/app/chrome-profile \
+     --env-file /path/to/tana-automation/.env \
+     --name tana-watcher \
+     ghcr.io/mrkhachaturov/tana-automation:latest
+   ```
 
 See [full deployment guide](docs/KANBAN-WATCHER.md#docker-deployment).
 

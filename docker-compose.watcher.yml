@@ -4,14 +4,19 @@
 #
 # Usage:
 #   1. Copy .env.example to .env and configure
-#   2. Login on host: npx playwright open --channel=chrome --user-data-dir=./chrome-profile "$TANA_KANBAN_URL"
+#   2. Login on host: npm run login
 #   3. Start: docker-compose -f docker-compose.watcher.yml up -d
 #   4. Logs: docker-compose -f docker-compose.watcher.yml logs -f
 #   5. Stop: docker-compose -f docker-compose.watcher.yml down
+#
+# To build locally instead of using pre-built image:
+#   docker-compose -f docker-compose.watcher.yml build
+#   OR uncomment the "build" line below
 
 services:
   kanban-watcher:
-    build: .
+    image: ghcr.io/mrkhachaturov/tana-automation:latest
+    # build: .  # Uncomment to build locally instead
     platform: linux/amd64
     container_name: tana-kanban-watcher
     
