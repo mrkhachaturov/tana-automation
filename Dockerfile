@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json tsconfig.json ./
-RUN npm ci
+RUN npm install
 
 # Install Google Chrome using Playwright (handles all dependencies)
 RUN npx playwright install chrome

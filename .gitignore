@@ -2,7 +2,7 @@ node_modules
 artifacts
 .env
 *.log
-package-lock.json
+# package-lock.json - keep for reproducible builds
 
 # Auth & profiles (SENSITIVE - never commit)
 playwright/.auth
